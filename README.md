@@ -1,5 +1,9 @@
 # BDML-PS03
-Big Data y Machine Learning – Universidad de los Andes – 2026  En este repositorio encontrará la solución del Problem set 2 correspondiente al mejor modelo para predecir la pobreza.
+
+Big Data y Machine Learning – Universidad de los Andes – 2026  
+
+En este repositorio encontrará la solución del Problem set 2 correspondiente al mejor modelo para predecir la pobreza.
+
 ## Autores
 
 -   Leidy Lorena Dávila Vallejo - COD: 202522776
