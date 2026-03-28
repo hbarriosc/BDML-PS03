@@ -12,9 +12,9 @@ length(intersect(names(train_hogares),names(train_personas)))
 
 ### Data Wrangling
 
-  ## Merge de conjuntos de TRAIN
+## Merge de conjuntos de TRAIN
 
-    # 1. Agregar personas
+# 1. Agregar personas
 personas_hogar_train <- train_personas %>%
   group_by(id) %>%
   summarise(
@@ -22,17 +22,17 @@ personas_hogar_train <- train_personas %>%
     n_personas = n()
   )
 
-    # 2. Merge final (persona-hogar)
+# 2. Merge final (persona-hogar)
 base_modelo_train <- train_hogares %>%
   left_join(personas_hogar_train, by = "id")
 
-    # 3. Eliminar variables con mas de 30% de NAs
+# 3. Eliminar variables con mas de 30% de NAs
 base_modelo_train_clean <- base_modelo_train[, colMeans(is.na(base_modelo_train)) <= 0.3]
 
 
-  ## Merge de conjuntos de TEST
+## Merge de conjuntos de TEST
 
-    # 1. Agregar personas
+# 1. Agregar personas
 personas_hogar_test <- test_personas %>%
   group_by(id) %>%
   summarise(
@@ -40,11 +40,11 @@ personas_hogar_test <- test_personas %>%
     n_personas = n()
   )
 
-    # 2. Merge final
+# 2. Merge final
 base_modelo_test <- test_hogares %>%
   left_join(personas_hogar_test, by = "id")
 
-    # 3. Eliminar variables con mas de 30% de NAs
+# 3. Eliminar variables con mas de 30% de NAs
 base_modelo_test_clean <- base_modelo_test[, colMeans(is.na(base_modelo_test)) <= 0.3]
 
 # Descripción de variables utilizables (* para variables que requieren ajustes)
@@ -86,7 +86,7 @@ base_modelo_test_clean <- base_modelo_test[, colMeans(is.na(base_modelo_test)) <
 # prom_Oc(personas):*     Ocupado 1: sí
 # prom_Fex_c(personas):*  Factor de expansión anualizado
 # prom_Depto(personas):*  Departamento
-# prom_Fex_dpto:          Factor de expansión departamental
+# prom_Fex_dpto:*         Factor de expansión departamental
 # n_personas(personas):*  numero de personas
 
 
@@ -95,6 +95,59 @@ base_modelo_test_clean <- base_modelo_test[, colMeans(is.na(base_modelo_test)) <
 vars_comunes <- intersect(names(base_modelo_test_clean),
                           names(base_modelo_train_clean))
 
-base_modelo_train_clean_depurado <- base_modelo_train_clean[, vars_comunes]
+# Variables a eliminar
+vars_eliminar <- c("prom_Clase", "prom_Fex_c", "prom_Depto", "prom_Fex_dpto")
+
+# Quitar esas variables de las comunes
+vars_comunes <- setdiff(vars_comunes, vars_eliminar)
+
+# Agregar la variable objetivo solo para train
+vars_train <- unique(c(vars_comunes, "Pobre"))
+
+# Subconjuntos finales
+base_modelo_train_clean_depurado <- base_modelo_train_clean[, vars_train]
 base_modelo_test_clean_depurado  <- base_modelo_test_clean[, vars_comunes]
+
+#********************#
+
+# Función de preprocesamiento
+pre_process_personas <-  function(data, ...) {
+  data <- data %>% 
+    mutate(#nombre_nuevo = ifelse(variable == valor de comparación, valor si verdadero, valor si falso)
+    ) %>% 
+    select(nombres_nuevos)
+  return(data)
+}
+
+# Conversión de variables categóricas
+train <- train %>% 
+  mutate(Pobre   = factor(Pobre,levels=c(0,1),labels=c("No","Yes")),
+         Dominio = factor(Dominio),
+         cat_educHead = factor(
+           cat_educHead, 
+           levels = c(0:6),
+           labels=c("No sabe",'Ninguno', 'Preescolar', 'Primaria',
+                    'Secundaria', 'Media', 'Universitaria')
+         ))
+test <- test %>%
+  mutate(Dominio = factor(Dominio),
+         cat_educHead = factor(
+           cat_educHead, 
+           levels = c(0:6),
+           labels=c("No sabe",'Ninguno', 'Preescolar', 'Primaria',
+                    'Secundaria', 'Media', 'Universitaria')
+         ))
+
+#***********************#
+
+# Estimación de probabilidades
+
+# Elastic net
+
+ctrl <- trainControl(
+  method = "cv",
+  number = 5,
+  classProbs = TRUE,
+  savePredictions = TRUE
+)
 
