@@ -118,15 +118,23 @@ table(train$Pobre)
 ##########Entrenamiento############################################
 #####################################
 
+
 set.seed(123)
 
+#Quitamos las variables que no quieremos usar en el modelo, por motivo de que nos nos aportara mucha informacioon 
+train <- train %>%
+  select(-id, -Dominio, -Depto)
+
+test <- test %>%
+  select(-id, -Dominio, -Depto)
+
+# Entrenamiento y validación
 idx <- createDataPartition(train$Pobre, p = 0.8, list = FALSE)
 
 train_split <- train[idx, ]
 valid_split <- train[-idx, ]
 
-#Control ##
-
+#Control de entrenamiento
 ctrl <- trainControl(
   method = "cv",
   number = 5,
@@ -134,24 +142,16 @@ ctrl <- trainControl(
   summaryFunction = twoClassSummary
 )
 
-train <- train %>%
-  select(-id)
-
-test <- test %>%
-  select(-id)
-
-train <- train %>%
-  select(-Dominio, -Depto)
-
-test <- test %>%
-  select(-Dominio, -Depto)
-
+# variables numéricas para el logit
 train_num <- train_split %>% select(where(is.numeric))
 valid_num <- valid_split %>% select(where(is.numeric))
 
+# Variable Pobre
 train_num$Pobre <- train_split$Pobre
 valid_num$Pobre <- valid_split$Pobre
 
+# Entrenar el modelo  logit
 logit_fit <- glm(Pobre ~ ., data = train_num, family = binomial)
 
+# Predecir probabilidades
 logit_prob <- predict(logit_fit, newdata = valid_num, type = "response")
