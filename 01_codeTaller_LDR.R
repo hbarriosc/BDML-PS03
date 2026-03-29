@@ -111,4 +111,47 @@ dim(base_modelo_train)
 dim(base_modelo_test)
 dim(train)
 dim(test)
+#Aqui podemos encontrar un desbalance en las diferentes clases sociales que se ecuentran
 table(train$Pobre)
+
+##############################################################################3
+##########Entrenamiento############################################
+#####################################
+
+set.seed(123)
+
+idx <- createDataPartition(train$Pobre, p = 0.8, list = FALSE)
+
+train_split <- train[idx, ]
+valid_split <- train[-idx, ]
+
+#Control ##
+
+ctrl <- trainControl(
+  method = "cv",
+  number = 5,
+  classProbs = TRUE,
+  summaryFunction = twoClassSummary
+)
+
+train <- train %>%
+  select(-id)
+
+test <- test %>%
+  select(-id)
+
+train <- train %>%
+  select(-Dominio, -Depto)
+
+test <- test %>%
+  select(-Dominio, -Depto)
+
+train_num <- train_split %>% select(where(is.numeric))
+valid_num <- valid_split %>% select(where(is.numeric))
+
+train_num$Pobre <- train_split$Pobre
+valid_num$Pobre <- valid_split$Pobre
+
+logit_fit <- glm(Pobre ~ ., data = train_num, family = binomial)
+
+logit_prob <- predict(logit_fit, newdata = valid_num, type = "response")
