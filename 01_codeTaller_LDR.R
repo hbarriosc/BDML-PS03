@@ -121,20 +121,17 @@ table(train$Pobre)
 
 set.seed(123)
 
-#Quitamos las variables que no quieremos usar en el modelo, por motivo de que nos nos aportara mucha informacioon 
-train <- train %>%
-  select(-id, -Dominio, -Depto)
+# Para nuestra primera prediccion, eliminaremos variables que no vamos a usar
+train_model <- train %>% select(-id, -Dominio, -Depto)
+test_model  <- test %>% select(-id, -Dominio, -Depto)
 
-test <- test %>%
-  select(-id, -Dominio, -Depto)
+# Vamos a realizar entrenamiento y validación
+idx <- createDataPartition(train_model$Pobre, p = 0.8, list = FALSE)
 
-# Entrenamiento y validación
-idx <- createDataPartition(train$Pobre, p = 0.8, list = FALSE)
+train_split <- train_model[idx, ]
+valid_split <- train_model[-idx, ]
 
-train_split <- train[idx, ]
-valid_split <- train[-idx, ]
-
-#Control de entrenamiento
+# Control de entrenamiento
 ctrl <- trainControl(
   method = "cv",
   number = 5,
@@ -142,16 +139,93 @@ ctrl <- trainControl(
   summaryFunction = twoClassSummary
 )
 
-# variables numéricas para el logit
+#Aqui, solo utilizaremos solo variables numéricas
 train_num <- train_split %>% select(where(is.numeric))
 valid_num <- valid_split %>% select(where(is.numeric))
+test_num  <- test_model %>% select(where(is.numeric))
 
-# Variable Pobre
+# Validamos la variable pobre, la cual es importante para las prediccions 
 train_num$Pobre <- train_split$Pobre
 valid_num$Pobre <- valid_split$Pobre
 
-# Entrenar el modelo  logit
+#Aqui validaremos train, valid y test
+vars_modelo <- intersect(names(train_num), names(test_num))
+vars_modelo <- setdiff(vars_modelo, "Pobre")
+
+train_num <- train_num[, c(vars_modelo, "Pobre")]
+valid_num <- valid_num[, c(vars_modelo, "Pobre")]
+test_num  <- test_num[, vars_modelo]
+
+# Entrenamos el modelo logit
 logit_fit <- glm(Pobre ~ ., data = train_num, family = binomial)
 
-# Predecir probabilidades
+# 8. Predicciones
 logit_prob <- predict(logit_fit, newdata = valid_num, type = "response")
+test_prob_logit <- predict(logit_fit, newdata = test_num, type = "response")
+
+#Utilizamos función F1
+f1_eval <- function(prob, y_true, cutoff = 0.5) {
+  pred <- ifelse(prob >= cutoff, "Yes", "No")
+  pred <- factor(pred, levels = c("No", "Yes"))
+  
+  cm <- confusionMatrix(pred, y_true, positive = "Yes")
+  
+  precision <- cm$byClass["Precision"]
+  recall <- cm$byClass["Recall"]
+  f1 <- 2 * precision * recall / (precision + recall)
+  
+  list(
+    confusion = cm,
+    precision = precision,
+    recall = recall,
+    f1 = f1
+  )
+}
+
+# Empezamos a realziar la evaluación inicial
+res_logit <- f1_eval(logit_prob, valid_num$Pobre, cutoff = 0.5)
+
+res_logit$f1
+res_logit$precision
+res_logit$recall
+res_logit$confusion
+
+# Buscamos el  mejor cutoff
+cuts <- seq(0.10, 0.90, by = 0.05)
+resultados_logit <- data.frame()
+
+for (c in cuts) {
+  met <- f1_eval(logit_prob, valid_num$Pobre, cutoff = c)
+  
+  resultados_logit <- rbind(
+    resultados_logit,
+    data.frame(
+      cutoff = c,
+      precision = as.numeric(met$precision),
+      recall = as.numeric(met$recall),
+      f1 = as.numeric(met$f1)
+    )
+  )
+}
+
+resultados_logit
+resultados_logit[which.max(resultados_logit$f1), ]
+
+# cutoff
+mejor_cutoff_logit <- resultados_logit$cutoff[which.max(resultados_logit$f1)]
+mejor_cutoff_logit
+
+#Predicción final en test
+test_pred_logit <- ifelse(test_prob_logit >= mejor_cutoff_logit, 1, 0)
+
+#Submission
+submission_logit <- data.frame(
+  id = base_modelo_test$id,
+  Pobre = test_pred_logit
+)
+
+head(submission_logit)
+dim(submission_logit)
+
+#Guardardamos  CSV
+write.csv(submission_logit, "submission_logit_v1.csv", row.names = FALSE)
