@@ -117,7 +117,9 @@ table(train$Pobre)
 ##############################################################################3
 ##########Entrenamiento############################################
 #####################################
-
+#Acontinuación despues de limpiar nuestros datos vamos a crear un set see en donde se realizar un modelo
+#logit con el fin de estimar la probabilidad de que el hogar sea pobre en donde utilizamos variables demograficas
+#socieconomicas 
 
 set.seed(123)
 
@@ -227,7 +229,7 @@ submission_logit <- data.frame(
   Pobre = test_pred_logit
 )
 
-# Chequeos
+# Validamos que todo este correctamente 
 head(submission_logit)
 dim(submission_logit)
 sum(is.na(submission_logit$Pobre))
