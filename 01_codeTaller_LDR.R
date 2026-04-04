@@ -215,8 +215,11 @@ resultados_logit[which.max(resultados_logit$f1), ]
 mejor_cutoff_logit <- resultados_logit$cutoff[which.max(resultados_logit$f1)]
 mejor_cutoff_logit
 
+# Reemplazar valores nulos
+test_pred_logit[is.na(test_pred_logit)] <- 0
+
 #Predicción final en test
-test_pred_logit <- ifelse(test_prob_logit >= mejor_cutoff_logit, 1, 0)
+test_pred_logit <- as.integer(test_pred_logit)
 
 #Submission
 submission_logit <- data.frame(
@@ -224,8 +227,12 @@ submission_logit <- data.frame(
   Pobre = test_pred_logit
 )
 
+# Chequeos
 head(submission_logit)
 dim(submission_logit)
+sum(is.na(submission_logit$Pobre))
+unique(submission_logit$Pobre)
+names(submission_logit)
 
 #Guardardamos  CSV
-write.csv(submission_logit, "submission_logit_v1.csv", row.names = FALSE)
+write.csv(submission_logit, "submission_logit_v2.csv", row.names = FALSE, quote = FALSE)
