@@ -268,12 +268,16 @@ res_lpm$precision
 res_lpm$recall
 
 
-###Prediccion 1.2 LPM ####
+##Prediccion 1.2 LPM Version mejorada
 
 set.seed(123)
 
-# SELECCIÓN DE VARIABLES CON CRITERIO ECONÓMICO
 
+#Seleccionamos la variables a vivienda, tamaño del hogar, educación,
+#ocupación, formalidad laboral, salud y transferencias y unicamente nos quedarmos con ñas que  en train como en test
+#Con el fin de mejorar nuestra prediccion
+#Se incluyeron variables de educación y empleo porque, desde la teoría del capital humano, mayores niveles educativos y mejores inserciones
+#laborales aumentan la productividad y reducen la probabilidad de pobreza.
 
 vars_economicas <- c(
   # Características del hogar
@@ -308,13 +312,13 @@ cat("Variables seleccionadas:", length(vars_disponibles), "\n")
 print(vars_disponibles)
 
 
-#CONSTRUIR BASES 
-
+#Construimos las bases 
 
 train_lpm2 <- train %>% select(all_of(c(vars_disponibles, "Pobre")))
 test_lpm2  <- test  %>% select(all_of(vars_disponibles))
 
-# Imputación con mediana (calculada SOLO en train, aplicada a ambos)
+# Imputación con mediana calculada solo en train
+
 medianas <- sapply(train_lpm2 %>% select(-Pobre), 
                    function(x) median(x, na.rm = TRUE))
 
@@ -332,11 +336,11 @@ cat("NAs en test:", sum(is.na(test_lpm2)), "\n")
 
 
 
-# Definir control con CV de 5 folds
+# Definimos control con CV de 5 folds
 ctrl_cv <- trainControl(
   method          = "cv",
   number          = 5,
-  summaryFunction = prSummary,   # Precision-Recall (mejor para desbalance)
+  summaryFunction = prSummary,   
   classProbs      = TRUE,
   savePredictions = "final"
 )
@@ -354,7 +358,7 @@ for (i in seq_along(folds)) {
   fold_train <- train_lpm2[-idx_val, ]
   fold_valid <- train_lpm2[idx_val, ]
   
-  # Entrenar LPM
+  # Entrenamos LPM
   formula_lpm <- as.formula(
     paste("Pobre_num ~", paste(vars_disponibles, collapse = " + "))
   )
@@ -383,8 +387,7 @@ for (i in seq_along(folds)) {
 cat(sprintf("\nF1 promedio CV: %.4f ± %.4f\n", mean(f1_folds), sd(f1_folds)))
 
 
-# PASO 4: MANEJO DE DESBALANCE CON PESOS
-
+# Manejamos desbalance
 
 prop_pobre <- mean(train_lpm2$Pobre_num)
 cat(sprintf("Proporción pobres: %.2f%%\n", prop_pobre * 100))
@@ -458,7 +461,7 @@ cat(sprintf("\nMejor cutoff (CV): %.2f | F1 CV: %.4f\n",
             mejor_cutoff_v2, max(f1_por_cutoff)))
 
 
-# PREDICCIÓN FINAL EN TEST
+#Validacion final 
 
 
 prob_test_v2 <- predict(lpm_fit_v2, newdata = test_lpm2)
@@ -494,10 +497,21 @@ write.csv(
   quote     = FALSE
 )
 
-#Modelo -2 
-#Acontinuación despues de limpiar nuestros datos vamos a crear un set see en donde se realizar un modelo
+#Modelo 2 Logit- 3 prediccion 
+
+
+#Acontinuación despues de limpiar nuestros datos vamos a seguir con nuestra semilla en donde se realizar un modelo
 #logit con el fin de estimar la probabilidad de que el hogar sea pobre en donde utilizamos variables demograficas
-#socieconomicas 
+#socieconomicas -una variable dependiente dicotómica: pobre / no pobre.
+#El modelo logit se sustenta en la idea de que la probabilidad de pobreza de un hogar puede explicarse a partir de características observables del hogar y sus miembros,
+#como tamaño del hogar, educación, empleo y condiciones habitacionales.
+#Banco Mundial, Handbook on Poverty and Inequality. Enfoque aplicado para análisis de pobreza y bienestar.
+
+#UCLA OARC, Logistic Regression. interpretación del modelo logit como modelo para variables dicotómicas
+#Gary Becker, Human Capital. Fundamento clásico para variables de educación y productividad.
+
+#Semilla  
+
 
 set.seed(123)
 
@@ -623,8 +637,8 @@ write.csv(submission_logit, "submission_logit_v2.csv", row.names = FALSE, quote 
 
 #Modelo -2.1 Prediccion 3 
 
-#De acuerdo a nuestro primer modelo, nuestra idea es realizar un modelo mas robusto, a medida que vamos 
-#entrenendo, sin embargo por otro lado nos encontramos en el dile de la incertidumbre, la cual validaremos
+#De acuerdo a nuestro segundo modelo, nuestra idea es realizar un modelo mas robusto, a medida que vamos 
+#entrenendo, sin embargo por otro lado nos encontramos en el dilema de la incertidumbre, la cual validaremos
 #si enverdad nuestro modelo fue mejor que el anterior
 
 #para esto  vamos a realizar un modelo Elastic Net, lo utilizaremos ya que tenemos muchas variables, con el fin de que nuestro modelo NO sea debil por cuentiones
