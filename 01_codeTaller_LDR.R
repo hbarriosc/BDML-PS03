@@ -114,19 +114,20 @@ dim(test)
 #Aqui podemos encontrar un desbalance en las diferentes clases sociales que se ecuentran
 table(train$Pobre)
 
-##############################################################################3
-##########Entrenamiento############################################
-#####################################
 
-###Prediccion# 1###LPM ###
+#Entrenamiento
 
-# El LPM es una regresión lineal donde la variable dependiente toma valores 0 y 1.
-# En este caso, modelamos la probabilidad de que un hogar sea pobre.
+###Prediccion 1 LPM: El LPM es una regresión lineal donde la variable dependiente toma valores 0 y 1.
+# En este caso, modelamos la probabilidad de que un hogar sea pobre.Este modelo asume una relación lineal entre las covariables y la probabilidad de pobreza, lo cual permite una interpretación
+#directa de los coeficientes como cambios marginales en dicha probabilidad.
+
+#Nos basamos en teoria del bienestar la porbreza depende del ingreso, tamaño de hogar, eduacucion, empleo, acceso a servicios
+#Referencias: Sen (1981) – Poverty and Famines World Bank (2000) – World Development Report
+
+#Realizamos nuestra semilla y la preparacion de los datos 
 
 set.seed(123)
 
-# Para mantener comparabilidad con los demás modelos,
-# usamos la misma lógica inicial de selección de variables
 train_model_lpm <- train %>% select(-id, -Dominio, -Depto)
 test_model_lpm  <- test %>% select(-id, -Dominio, -Depto)
 
@@ -265,6 +266,7 @@ write.csv(
 res_lpm$f1
 res_lpm$precision
 res_lpm$recall
+
 
 ###Prediccion 1.2 LPM ####
 
