@@ -710,13 +710,13 @@ res_rf$confusion
 cuts <- seq(0.10, 0.90, by = 0.05)
 resultados_rf <- data.frame()
 
-for (c in cuts) {
-  met <- f1_eval(rf_prob, valid_num_rf$Pobre, cutoff = c)
+for (cut in cuts) {
+  met <- f1_eval(rf_prob, valid_num_rf$Pobre, cutoff = cut)
   
   resultados_rf <- rbind(
     resultados_rf,
     data.frame(
-      cutoff = c,
+      cutoff = cut,
       precision = as.numeric(met$precision),
       recall = as.numeric(met$recall),
       f1 = as.numeric(met$f1)
@@ -724,18 +724,33 @@ for (c in cuts) {
   )
 }
 
+# Revisar resultados
 resultados_rf
 resultados_rf[which.max(resultados_rf$f1), ]
 
+# Guardar mejor cutoff
 mejor_cutoff_rf <- resultados_rf$cutoff[which.max(resultados_rf$f1)]
 mejor_cutoff_rf
 
-# Predicción final
+# Verificar que sí exista
+if (length(mejor_cutoff_rf) == 0 || is.na(mejor_cutoff_rf)) {
+  stop("No se pudo calcular mejor_cutoff_rf")
+}
+
+# Predicción final en test
 test_prob_rf <- predict(rf_fit, newdata = test_num_rf, type = "prob")[, "Yes"]
+
+# Verificar que sí existan probabilidades
+length(test_prob_rf)
+sum(is.na(test_prob_rf))
 
 test_pred_rf <- ifelse(test_prob_rf >= mejor_cutoff_rf, 1, 0)
 test_pred_rf[is.na(test_pred_rf)] <- 0
 test_pred_rf <- as.integer(test_pred_rf)
+
+# Verificar longitudes
+length(base_modelo_test$id)
+length(test_pred_rf)
 
 # Submission
 submission_rf <- data.frame(
@@ -743,10 +758,13 @@ submission_rf <- data.frame(
   Pobre = test_pred_rf
 )
 
+# Validaciones finales
 head(submission_rf)
 dim(submission_rf)
 sum(is.na(submission_rf$Pobre))
 unique(submission_rf$Pobre)
+names(submission_rf)
 
+# Guardar CSV
 write.csv(submission_rf, "submission_model4_rf_v1.csv",
           row.names = FALSE, quote = FALSE)
