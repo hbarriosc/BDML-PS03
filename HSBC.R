@@ -1,4 +1,4 @@
-# Predicción X - Naive Bayes (base)
+############################3 Predicción X - Naive Bayes (base)
 
 set.seed(123)
 
@@ -112,91 +112,7 @@ write.csv(
   quote = FALSE
 )
 
-
-###otro
-
-# 🔹 Predicción NB 2 - Naive Bayes con tuning
-
-set.seed(123)
-
-# Reutilizamos train_num_nb, valid_num_nb, test_num_nb
-
-# Control de entrenamiento
-ctrl_nb <- trainControl(
-  method = "cv",
-  number = 5,
-  classProbs = TRUE,
-  summaryFunction = prSummary
-)
-
-# Grid
-grid_nb <- expand.grid(
-  laplace   = c(0, 1, 2),
-  usekernel = c(TRUE, FALSE),
-  adjust    = c(1, 1.5)
-)
-
-# Entrenamiento con caret
-nb_tuned <- train(
-  Pobre ~ .,
-  data = train_num_nb,
-  method = "naive_bayes",
-  trControl = ctrl_nb,
-  tuneGrid = grid_nb,
-  metric = "F"  
-)
-
-# Mejor combinación
-print(nb_tuned)
-nb_tuned$bestTune
-
-# Predicción
-nb_prob_tuned <- predict(nb_tuned, newdata = valid_num_nb, type = "prob")[, "Yes"]
-test_prob_nb_tuned <- predict(nb_tuned, newdata = test_num_nb, type = "prob")[, "Yes"]
-
-# Evaluación base
-res_nb_tuned <- f1_eval(nb_prob_tuned, valid_num_nb$Pobre, cutoff = 0.5)
-
-res_nb_tuned$f1
-res_nb_tuned$precision
-res_nb_tuned$recall
-res_nb_tuned$confusion
-
-
-# Buscar mejor cutoff
-cuts <- seq(0.10, 0.90, by = 0.05)
-resultados_nb_tuned <- data.frame()
-
-for (c in cuts) {
-  met <- f1_eval(nb_prob_tuned, valid_num_nb$Pobre, cutoff = c)
-  
-  resultados_nb_tuned <- rbind(resultados_nb_tuned,
-                               data.frame(cutoff = c,
-                                          precision = met$precision,
-                                          recall = met$recall,
-                                          f1 = met$f1))
-}
-
-# Mejor cutoff
-mejor_cutoff_nb_tuned <- resultados_nb_tuned$cutoff[which.max(resultados_nb_tuned$f1)]
-
-# Predicción final
-test_pred_nb_tuned <- ifelse(test_prob_nb_tuned >= mejor_cutoff_nb_tuned, 1, 0)
-test_pred_nb_tuned[is.na(test_pred_nb_tuned)] <- 0
-test_pred_nb_tuned <- as.integer(test_pred_nb_tuned)
-
-# Submission
-submission_nb_tuned <- data.frame(
-  id = base_modelo_test$id,
-  Pobre = test_pred_nb_tuned
-)
-
-write.csv(submission_nb_tuned, "submission_nb_tuned.csv",
-          row.names = FALSE, quote = FALSE)
-
-###otro
-
-# 🔹 Predicción X - Árbol (CART) con tuning de cp
+###################Predicción X - Árbol (CART) con tuning de cp
 
 set.seed(123)
 
@@ -327,6 +243,127 @@ unique(submission_tree$Pobre)
 write.csv(
   submission_tree,
   "submission_tree_cp_tuned.csv",
+  row.names = FALSE,
+  quote = FALSE
+)
+
+############# Predicción ELASTIC NET + ROSE
+library(caret)
+library(ROSE)
+
+set.seed(123)
+
+# 🔹 Base (igual que ustedes)
+train_en <- train %>% select(-id, -Dominio, -Depto)
+test_en  <- test  %>% select(-id, -Dominio, -Depto)
+
+# 🔹 Split (idealmente usa el mismo idx global)
+idx_en <- createDataPartition(train_en$Pobre, p = 0.8, list = FALSE)
+
+train_split_en <- train_en[idx_en, ]
+valid_split_en <- train_en[-idx_en, ]
+
+# 🔹 Solo numéricas
+train_num_en <- train_split_en %>% select(where(is.numeric))
+valid_num_en <- valid_split_en %>% select(where(is.numeric))
+test_num_en  <- test_en %>% select(where(is.numeric))
+
+# 🔹 Agregar target
+train_num_en$Pobre <- train_split_en$Pobre
+valid_num_en$Pobre <- valid_split_en$Pobre
+
+# 🔹 Alinear columnas
+vars_modelo_en <- intersect(names(train_num_en), names(test_num_en))
+vars_modelo_en <- setdiff(vars_modelo_en, "Pobre")
+
+train_num_en <- train_num_en[, c(vars_modelo_en, "Pobre")]
+valid_num_en <- valid_num_en[, c(vars_modelo_en, "Pobre")]
+test_num_en  <- test_num_en[, vars_modelo_en]
+
+# 🔹 Imputación (igual a ustedes)
+for (col in names(train_num_en)) {
+  if (col != "Pobre") {
+    med <- median(train_num_en[[col]], na.rm = TRUE)
+    if (is.na(med)) med <- 0
+    
+    train_num_en[[col]][is.na(train_num_en[[col]])] <- med
+    valid_num_en[[col]][is.na(valid_num_en[[col]])] <- med
+    test_num_en[[col]][is.na(test_num_en[[col]])]   <- med
+  }
+}
+
+# 🔹 Control con ROSE + F1
+ctrl_en <- trainControl(
+  method = "cv",
+  number = 5,
+  sampling = "rose",          # 🔥 AQUÍ el cambio clave
+  classProbs = TRUE,
+  summaryFunction = prSummary
+)
+
+# 🔹 Grid Elastic Net
+grid_en <- expand.grid(
+  alpha = seq(0, 1, by = 0.25),
+  lambda = seq(0.0001, 0.1, length = 10)
+)
+
+# 🔹 Modelo
+en_tuned <- train(
+  Pobre ~ .,
+  data = train_num_en,
+  method = "glmnet",
+  trControl = ctrl_en,
+  tuneGrid = grid_en,
+  metric = "F",
+  preProcess = c("center", "scale")   # 🔥 recomendable para glmnet
+)
+
+# 🔹 Mejores parámetros
+print(en_tuned)
+en_tuned$bestTune
+
+# 🔹 Probabilidades
+en_prob <- predict(en_tuned, newdata = valid_num_en, type = "prob")[, "Yes"]
+test_prob_en <- predict(en_tuned, newdata = test_num_en, type = "prob")[, "Yes"]
+
+# 🔹 Evaluación base
+res_en <- f1_eval(en_prob, valid_num_en$Pobre, cutoff = 0.5)
+
+# 🔹 Optimizar cutoff
+cuts <- seq(0.10, 0.90, by = 0.05)
+resultados_en <- data.frame()
+
+for (c in cuts) {
+  met <- f1_eval(en_prob, valid_num_en$Pobre, cutoff = c)
+  
+  resultados_en <- rbind(
+    resultados_en,
+    data.frame(
+      cutoff = c,
+      precision = met$precision,
+      recall = met$recall,
+      f1 = met$f1
+    )
+  )
+}
+
+# 🔹 Mejor cutoff
+mejor_cutoff_en <- resultados_en$cutoff[which.max(resultados_en$f1)]
+
+# 🔹 Predicción final
+test_pred_en <- ifelse(test_prob_en >= mejor_cutoff_en, 1, 0)
+test_pred_en[is.na(test_pred_en)] <- 0
+test_pred_en <- as.integer(test_pred_en)
+
+# 🔹 Submission
+submission_en <- data.frame(
+  id = base_modelo_test$id,
+  Pobre = test_pred_en
+)
+
+write.csv(
+  submission_en,
+  "submission_elasticnet_rose.csv",
   row.names = FALSE,
   quote = FALSE
 )
