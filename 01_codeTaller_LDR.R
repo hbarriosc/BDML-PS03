@@ -13,6 +13,7 @@ library(rpart)
 library(e1071)
 library(pROC)
 
+
 #Cargamos los archivos csv que utilizaresmos, por otro lado ajustamos los delim, por motivo que se contraban en una sola columna
 #Se realiza el mismo proceso con las 4 bases
 train_hogares <- read_delim(
@@ -856,6 +857,36 @@ write.csv(
   row.names = FALSE,
   quote = FALSE
 )
+
+
+logit_prob2 <- predict(logit_fit2, newdata = valid_split2, type = "response")
+
+# 1. Curva ROC usando validación
+roc_logit2 <- roc(
+  response = valid_split2$Pobre,
+  predictor = logit_prob2,
+  levels = c("No", "Yes"),
+  direction = "<"
+)
+
+# 2. Graficar ROC
+plot(
+  roc_logit2,
+  col = "#27ae60",
+  lwd = 4,
+  main = "Curva ROC - Logit mejorado"
+)
+
+# 3. Agregar AUC al gráfico
+text(
+  0.6, 0.2,
+  paste("AUC =", round(auc(roc_logit2), 4)),
+  cex = 1.2,
+  col = "darkgreen"
+)
+
+# 4. Ver AUC en consola
+auc(roc_logit2)
 
 
 # Prediccion 4 Modelo Elastic Net 
