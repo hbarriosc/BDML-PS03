@@ -30,8 +30,9 @@ Para reproducir todos los resultados, correr:
 
 Todos los outputs se generan automáticamente en `02_outputs/`.
 
--   Figuras (`02_outputs/figures/`): visualizaciones generadas por el código
--   Tablas (`02_outputs/tables/`): resultados de estimaciones en formato `.tex` y `.html`
+-   Figures (`03_outputs/figures/`): visualizaciones generadas por el código
+-   Submissions (`03_outputs/submissions/`): archivos con los resultados de los modelos para subir a Kaggle
+-   Tables (`03_outputs/tables/`): resultados de estimaciones en formato `.tex` y `.html`
 
 ## Software / entorno
 
