@@ -10,9 +10,21 @@ En este repositorio encontrará la solución del Problem set 2 correspondiente a
 -   Juan Guillermo Sánchez - COD: 202323123
 -   Héctor Steben Barrios Carranza - COD: 202116184
 
+## Descarga de datos
+
+Los datos no están incluidos en este repositorio por restricciones de tamaño. Es necesario:
+
+1. Descargar las bases de datos de kaggle(https://www.kaggle.com/competitions/uniandes-bdml-2026-10-ps-2/data)
+2. Guardar los siguientes archivos dentro de la carpeta `02_data/`:
+
+- train_personas.csv
+- train_hogares.csv
+- test_personas.csv
+- test_hogares.csv
+
 ## Replicación
 
-Para reproducir todos los resultados, correr:
+Para reproducir todos los resultados, una vez descargados y ubicados los datos, primero correr:
 
 `source("01_code/00_rundirectory.R")`
 
