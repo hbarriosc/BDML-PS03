@@ -1,8 +1,24 @@
-# Paso 0: Limpieza espacio de trabajo y creción de la carpeta de outputs.
+##########################################################
+# Master script
+#
+# Running this file reproduces all results in the repository.
+#
+# To reproduce all results, run:
+# from an interactive R session: source("01_code/00_rundirectory.R")   
+# or from the command line: R CMD BATCH 01_code/00_rundirectory.R
+#
+# Authors:
+#
+# - Leidy Lorena Dávila Vallejo
+# - Juan Guillermo Sánchez
+# - Héctor Steben Barrios Carranza
+##########################################################
+
+# Paso 0: Limpieza espacio de trabajo y creación de la carpeta de outputs.
 cat("\014")
 rm(list = ls())
 
-for (path in c("02_output", "02_output/figures", "02_output/tables")) {
+for (path in c("02_output", "02_output/figures", "02_output/tables", "02_output/submissions")) {
   dir.create(path, recursive = TRUE, showWarnings = FALSE)
 }
 
