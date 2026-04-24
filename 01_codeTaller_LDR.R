@@ -888,6 +888,74 @@ text(
 # 4. Ver AUC en consola
 auc(roc_logit2)
 
+#2 GRAFICA#
+
+# Importancia de variables del Logit mejorado
+coef_logit2 <- summary(logit_fit2)$coefficients
+
+importancia_logit2 <- data.frame(
+  variable = rownames(coef_logit2),
+  coeficiente = coef_logit2[, "Estimate"],
+  p_value = coef_logit2[, "Pr(>|z|)"],
+  stringsAsFactors = FALSE
+)
+
+importancia_logit2 <- importancia_logit2[importancia_logit2$variable != "(Intercept)", ]
+importancia_logit2$importancia <- abs(importancia_logit2$coeficiente)
+
+# Mirar nombres reales para validar
+print(importancia_logit2$variable)
+
+# Elegimos las variables que sí aparecen fuerte en tu gráfica original
+vars_clave <- c(
+  "prom_P6090",  # Afiliación salud
+  "prom_P6240",  # Actividad
+  "prom_P6430",  # Tipo empleo
+  "prom_P6210"   # Educación
+)
+
+idx_vars <- unlist(lapply(vars_clave, function(x) {
+  grep(x, importancia_logit2$variable)
+}))
+
+importancia_filtrada <- importancia_logit2[idx_vars, ]
+
+# Nos quedamos con el coeficiente más alto de cada grupo
+importancia_filtrada$grupo <- NA
+importancia_filtrada$grupo[grepl("prom_P6090", importancia_filtrada$variable)] <- "Afiliación a salud"
+importancia_filtrada$grupo[grepl("prom_P6240", importancia_filtrada$variable)] <- "Actividad laboral"
+importancia_filtrada$grupo[grepl("prom_P6430", importancia_filtrada$variable)] <- "Tipo de empleo"
+importancia_filtrada$grupo[grepl("prom_P6210", importancia_filtrada$variable)] <- "Educación"
+
+importancia_final <- aggregate(
+  importancia ~ grupo,
+  data = importancia_filtrada,
+  FUN = max
+)
+
+importancia_final <- importancia_final[order(importancia_final$importancia), ]
+
+# Gráfica
+par(mar = c(5, 10, 3, 2))
+
+barplot(
+  importancia_final$importancia,
+  names.arg = importancia_final$grupo,
+  horiz = TRUE,
+  las = 1,
+  col = "#2E86C1",
+  border = NA,
+  main = "Factores clave de la pobreza",
+  cex.main = 1,
+  cex.names = 0.9,
+  xlab = "Importancia (|coeficiente|)"
+)
+
+par(mar = c(5, 4, 4, 2))
+
+
+# Grafica 3
+
 
 # Prediccion 4 Modelo Elastic Net 
 
