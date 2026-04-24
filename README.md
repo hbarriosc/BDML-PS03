@@ -15,6 +15,10 @@ En este repositorio encontrará la solución del Problem set 2 correspondiente a
 Los datos no están incluidos en este repositorio por restricciones de tamaño. Es necesario:
 
 1. Descargar las bases de datos de kaggle (https://www.kaggle.com/competitions/uniandes-bdml-2026-10-ps-2/data)
+2. Correr la siguiente línea para crear la carpeta `02_data/`:
+
+`for (path in c("02_data")) {dir.create(path, recursive = TRUE, showWarnings = FALSE)}`
+
 2. Guardar los siguientes archivos dentro de la carpeta `02_data/`:
 
 - train_personas.csv
