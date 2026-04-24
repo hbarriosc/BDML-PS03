@@ -33,21 +33,21 @@ Para reproducir todos los resultados, una vez descargados y ubicados los datos, 
 -   `01_code/00_rundirectory.R`: Master script. Reproduce todos los códigos y resultados.
 -   `01_code/01_setup_packages.R`: Carga e instala los paquetes necesarios.
 -   `01_code/02_load_and_preprare_data.R`: Llama, transforma y realiza la limpieza necesaria a los datos.
--   `01_code/03_modelo_1_.R`: Estimación del modelo 
--   `01_code/04_modelo_2_.R`: Estimación del modelo 
--   `01_code/05_modelo_3_.R`: Estimación del modelo 
--   `01_code/06_modelo_4_.R`: Estimación del modelo 
--   `01_code/07_modelo_5_.R`: Estimación del modelo 
--   `01_code/08_modelo_6_.R`: Estimación del modelo 
--   `01_code/09_modelo_7_.R`: Estimación del modelo 
--   `01_code/10_modelo_8_.R`: Estimación del modelo 
--   `01_code/11_modelo_9_.R`: Estimación del modelo 
--   `01_code/12_modelo_10_.R`: Estimación del modelo 
--   `01_code/13_modelo_11_.R`: Estimación del modelo 
--   `01_code/14_modelo_12_.R`: Estimación del modelo 
--   `01_code/15_modelo_13_.R`: Estimación del modelo 
--   `01_code/16_modelo_14_.R`: Estimación del modelo 
--   `01_code/17_modelo_15_.R`: Estimación del modelo 
+-   `01_code/03_modelo_1_LPM_v1.R`: Estimación del modelo lineal
+-   `01_code/04_modelo_2_LPM_v2.R`: Estimación del modelo lineal mejorado
+-   `01_code/05_modelo_3_Logit_v1.R`: Estimación del modelo logit
+-   `01_code/06_modelo_4_Logit_v2.R`: Estimación del modelo logit mejorado
+-   `01_code/07_modelo_5_EN_v1.R`: Estimación del modelo elastic net
+-   `01_code/08_modelo_6_EN_v2.R`: Estimación del modelo elastic net mejorado
+-   `01_code/09_modelo_7_RF_v1.R`: Estimación del modelo random forest
+-   `01_code/10_modelo_8_NB_v1.R`: Estimación del modelo naive bayes
+-   `01_code/11_modelo_9_CART_v1.R`: Estimación del modelo de árbol o CART
+-   `01_code/12_modelo_10_EN_v3.R`: Estimación del modelo elastic net con ROSE
+-   `01_code/13_modelo_11_EN_v4.R`: Estimación del modelo elastic net con UPSUMPLING
+-   `01_code/14_modelo_12_EN_v5.R`: Estimación del modelo elastic net con DOWNSAMPLIN
+-   `01_code/15_modelo_13_EN_v6.R`: Estimación del modelo elastic net Tuning de Alpha y Lambda
+-   `01_code/16_modelo_14_Logit_v3.R`: Estimación del modelo logit alterno
+-   `01_code/17_modelo_15_RF_v2.R`: Estimación del modelo random forest alterno
 -   `01_code/18_statistics_of_models.R`: Crea tablas y gráficas sobre los resultados y cálculos de los modelos.
 
 ## Salidas
