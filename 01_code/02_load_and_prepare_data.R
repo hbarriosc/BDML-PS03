@@ -2,9 +2,9 @@
 #Ajustamos los delim, por motivo que se contraban en una sola columna
 #Se realiza el mismo proceso con las 4 bases
 
-train_hogares <- read.csv(here("02_data","train_personas.csv"))
+train_hogares <- read.csv(here("02_data","train_hogares.csv"))
 train_personas <- read.csv(here("02_data","train_personas.csv"))
-test_hogares <- read.csv(here("02_data","train_personas.csv"))
+test_hogares <- read.csv(here("02_data","test_hogares.csv"))
 test_personas  <- read.csv(here("02_data","test_personas.csv"))
 
 #Para este paso agrupamos la información de cada hogar ya que tiene varias filas
