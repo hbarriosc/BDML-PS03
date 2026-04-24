@@ -8,6 +8,9 @@ roc_logit2 <- roc(
   direction = "<"
 )
 
+png(here("02_output","figures","roc_logit_mejorado.png"),
+    width = 900, height = 700)
+
 # 2. Graficar ROC
 plot(
   roc_logit2,
@@ -24,6 +27,7 @@ text(
   col = "darkgreen"
 )
 
+dev.off()
 # 4. Ver AUC en consola
 auc(roc_logit2)
 
@@ -78,7 +82,19 @@ importancia_final <- aggregate(
 
 importancia_final <- importancia_final[order(importancia_final$importancia), ]
 
+write.csv(
+  importancia_final,
+  here("02_output", "tables", "importancia_variables_logit.csv"),
+  row.names = FALSE
+)
+
 # Gráfica
+png(
+  here("02_output", "figures", "factores_clave_pobreza.png"),
+  width = 900,
+  height = 700
+)
+
 par(mar = c(5, 10, 3, 2))
 
 barplot(
@@ -93,6 +109,8 @@ barplot(
   cex.names = 0.9,
   xlab = "Importancia (|coeficiente|)"
 )
+
+dev.off()
 
 par(mar = c(5, 4, 4, 2))
 
@@ -132,6 +150,12 @@ errores_politica <- c(
   "Fuga\nFalsos positivos" = tasa_fuga
 )
 
+png(
+  here("02_output", "figures", "errores_politica_logit.png"),
+  width = 900,
+  height = 700
+)
+
 barplot(
   errores_politica,
   ylim = c(0, max(errores_politica) + 0.1),
@@ -148,3 +172,4 @@ text(
   labels = paste0(round(errores_politica * 100, 1), "%")
 )
 
+dev.off()
