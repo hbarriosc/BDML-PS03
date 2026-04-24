@@ -18,6 +18,10 @@
 cat("\014")
 rm(list = ls())
 
+for (path in c("02_data")) {
+  dir.create(path, recursive = TRUE, showWarnings = FALSE)
+}
+
 for (path in c("03_output", "03_output/figures", "03_output/tables", "03_output/submissions")) {
   dir.create(path, recursive = TRUE, showWarnings = FALSE)
 }
