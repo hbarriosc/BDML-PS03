@@ -1,8 +1,9 @@
-###Prediccion 1 LPM: El LPM es una regresión lineal donde la variable dependiente toma valores 0 y 1.
-# En este caso, modelamos la probabilidad de que un hogar sea pobre.Este modelo asume una relación lineal entre las covariables y la probabilidad de pobreza, lo cual permite una interpretación
-#directa de los coeficientes como cambios marginales en dicha probabilidad.
+###Predicción 1 LPM: El LPM es una regresión lineal donde la variable dependiente toma valores 0 y 1.
+#Este modelo asume una relación lineal entre las covariables y la probabilidad de pobreza, 
+#lo cual permite una interpretación directa de los coeficientes como cambios marginales en 
+#dicha probabilidad.
 
-#Nos basamos en teoria del bienestar la porbreza depende del ingreso, tamaño de hogar, eduacucion, empleo, acceso a servicios
+#Nos basamos en teoria del bienestar, la pobreza depende del ingreso, tamaño de hogar, eduacución, empleo, acceso a servicios
 #Referencias: Sen (1981) – Poverty and Famines World Bank (2000) – World Development Report
 
 #Realizamos nuestra semilla y la preparacion de los datos 
@@ -139,7 +140,7 @@ names(submission_lpm)
 
 write.csv(
   submission_lpm,
-  "submission_model1_lpm_v1.csv",
+  here("03_output/submissions","submission_model1_lpm_v1.csv"),
   row.names = FALSE,
   quote = FALSE
 )

@@ -1,5 +1,4 @@
-#Prediccion 7  - 4 Modelo RANDOM FOREST
-
+#Prediccion 7 RANDOM FOREST:
 
 # Cargamos la librería para Random Forest
 install.packages("ranger")
@@ -184,5 +183,5 @@ unique(submission_rf$Pobre)
 names(submission_rf)
 
 # Guardar CSV
-write.csv(submission_rf, "submission_model4_rf_v1.csv",
+write.csv(submission_rf, here("03_output/submissions","submission_model4_rf_v1.csv"),
           row.names = FALSE, quote = FALSE)

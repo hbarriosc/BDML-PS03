@@ -1,14 +1,12 @@
-##Prediccion 1.2 LPM Version mejorada
-
-set.seed(123)
-
-
+###Predicción 2 LPM Version mejorada:
 #Seleccionamos la variables a vivienda, tamaño del hogar, educación,
-#ocupación, formalidad laboral, salud y transferencias y unicamente nos quedarmos con ñas que  en train como en test
-#Con el fin de mejorar nuestra prediccion
-#Se incluyeron variables de educación y empleo porque, desde la teoría del capital humano, mayores niveles educativos y mejores inserciones
+#ocupación, formalidad laboral, salud y transferencias y unicamente nos quedarmos con las 
+#que en train como en test con el fin de mejorar nuestra prediccion
+#Se incluyeron variables de educación y empleo porque, desde la teoría del capital humano, 
+#mayores niveles educativos y mejores inserciones
 #laborales aumentan la productividad y reducen la probabilidad de pobreza.
 
+set.seed(123)
 vars_economicas <- c(
   # Características del hogar
   "P5000",        # Número de cuartos
@@ -209,7 +207,6 @@ cat(sprintf("Predichos como pobres: %d (%.1f%%)\n",
 
 # SUBMISSION
 
-
 submission_lpm_v2 <- data.frame(
   id    = test$id,
   Pobre = pred_test_v2
@@ -222,7 +219,7 @@ cat("Valores únicos:", unique(submission_lpm_v2$Pobre), "\n")
 
 write.csv(
   submission_lpm_v2,
-  "submission_lpm_v2_mejorado_cv.csv",
+  here("03_output/submissions","submission_lpm_v2_mejorado_cv.csv"),
   row.names = FALSE,
   quote     = FALSE
 )

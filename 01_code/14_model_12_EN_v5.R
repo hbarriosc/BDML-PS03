@@ -1,29 +1,25 @@
-############# Predicción ELASTIC NET + UPSAMPLING #########################
-
-library(caret)
+###Predicción 11 ELASTIC NET con DOWNSAMPLING
 
 set.seed(123)
 
-# 🔹 Base 
+#Base 
 train_en <- train %>% select(-id, -Dominio, -Depto)
 test_en  <- test  %>% select(-id, -Dominio, -Depto)
 
-# 🔹 Split
+#Split
 idx_en <- createDataPartition(train_en$Pobre, p = 0.8, list = FALSE)
 
 train_split_en <- train_en[idx_en, ]
 valid_split_en <- train_en[-idx_en, ]
 
-# 🔹 Solo numéricas
+#Solo numéricas
 train_num_en <- train_split_en %>% select(where(is.numeric))
 valid_num_en <- valid_split_en %>% select(where(is.numeric))
 test_num_en  <- test_en %>% select(where(is.numeric))
 
-# 🔹 Agregar target
 train_num_en$Pobre <- train_split_en$Pobre
 valid_num_en$Pobre <- valid_split_en$Pobre
 
-# 🔹 Alinear columnas
 vars_modelo_en <- intersect(names(train_num_en), names(test_num_en))
 vars_modelo_en <- setdiff(vars_modelo_en, "Pobre")
 
@@ -31,7 +27,7 @@ train_num_en <- train_num_en[, c(vars_modelo_en, "Pobre")]
 valid_num_en <- valid_num_en[, c(vars_modelo_en, "Pobre")]
 test_num_en  <- test_num_en[, vars_modelo_en]
 
-# 🔹 Imputación (igual a ustedes)
+#Imputación
 for (col in names(train_num_en)) {
   if (col != "Pobre") {
     med <- median(train_num_en[[col]], na.rm = TRUE)
@@ -43,53 +39,52 @@ for (col in names(train_num_en)) {
   }
 }
 
-# 🔹 Control con UPSAMPLING + F1
-ctrl_en_up <- trainControl(
+#Control
+ctrl_en_down <- trainControl(
   method = "cv",
   number = 5,
   classProbs = TRUE,
   summaryFunction = prSummary,
-  sampling = "up"
+  sampling = "down"
 )
 
-# 🔹 Grid Elastic Net
+#Grid
 grid_en <- expand.grid(
   alpha = seq(0, 1, by = 0.25),
   lambda = seq(0.0001, 0.1, length = 10)
 )
 
-# 🔹 Modelo
-en_up <- train(
+#Modelo
+en_down <- train(
   Pobre ~ .,
   data = train_num_en,
   method = "glmnet",
-  trControl = ctrl_en_up,
+  trControl = ctrl_en_down,
   tuneGrid = grid_en,
   metric = "F",
   family = "binomial",
   preProcess = c("center", "scale")
 )
 
-# 🔹 Mejores parámetros
-print(en_up)
-en_up$bestTune
+print(en_down)
+en_down$bestTune
 
-# 🔹 Probabilidades
-en_prob_up <- predict(en_up, newdata = valid_num_en, type = "prob")[, "Yes"]
-test_prob_up <- predict(en_up, newdata = test_num_en, type = "prob")[, "Yes"]
+#Probabilidades
+en_prob_down <- predict(en_down, newdata = valid_num_en, type = "prob")[, "Yes"]
+test_prob_down <- predict(en_down, newdata = test_num_en, type = "prob")[, "Yes"]
 
-# 🔹 Evaluación base
-res_en_up <- f1_eval(en_prob_up, valid_num_en$Pobre, cutoff = 0.5)
+#Evaluación base
+res_en_down <- f1_eval(en_prob_down, valid_num_en$Pobre, cutoff = 0.5)
 
-# 🔹 Optimizar cutoff
+#Optimizamos cutoff
 cuts <- seq(0.10, 0.90, by = 0.05)
-resultados_en_up <- data.frame()
+resultados_en_down <- data.frame()
 
 for (c in cuts) {
-  met <- f1_eval(en_prob_up, valid_num_en$Pobre, cutoff = c)
+  met <- f1_eval(en_prob_down, valid_num_en$Pobre, cutoff = c)
   
-  resultados_en_up <- rbind(
-    resultados_en_up,
+  resultados_en_down <- rbind(
+    resultados_en_down,
     data.frame(
       cutoff = c,
       precision = met$precision,
@@ -99,23 +94,23 @@ for (c in cuts) {
   )
 }
 
-# 🔹 Mejor cutoff
-mejor_cutoff_en_up <- resultados_en_up$cutoff[which.max(resultados_en_up$f1)]
+mejor_cutoff_en_down <- resultados_en_down$cutoff[which.max(resultados_en_down$f1)]
 
-# 🔹 Predicción final
-test_pred_en_up <- ifelse(test_prob_up >= mejor_cutoff_en_up, 1, 0)
-test_pred_en_up[is.na(test_pred_en_up)] <- 0
-test_pred_en_up <- as.integer(test_pred_en_up)
+#Predicción final
+test_pred_en_down <- ifelse(test_prob_down >= mejor_cutoff_en_down, 1, 0)
+test_pred_en_down[is.na(test_pred_en_down)] <- 0
+test_pred_en_down <- as.integer(test_pred_en_down)
 
-# 🔹 Submission
-submission_en_up <- data.frame(
+#Submission
+submission_en_down <- data.frame(
   id = base_modelo_test$id,
-  Pobre = test_pred_en_up
+  Pobre = test_pred_en_down
 )
 
 write.csv(
-  submission_en_up,
-  "submission_elasticnet_up.csv",
+  submission_en_down,
+  here("03_output/submissions","submission_elasticnet_down.csv"),
   row.names = FALSE,
   quote = FALSE
 )
+

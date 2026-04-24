@@ -1,6 +1,8 @@
-#4 prediccion- Logit Mejorado 
-#Acontunacion realizaremos una segunda prediccion del modelo logit con variables socieconomicas que 
-#suele estar asociada con menor capital humano, peores condiciones habitacionales, menor inserción laboral formal y mayor presión demográfica sobre los recursos del hogar.
+###Predicción 4 Logit Mejorado:
+
+#A contunacion realizaremos una segunda predicción del modelo logit con variables socieconomicas que 
+#suele estar asociada con menor capital humano, peores condiciones habitacionales, menor inserción 
+#laboral formal y mayor presión demográfica sobre los recursos del hogar.
 
 # Partimos de la base común
 train_logit2 <- train
@@ -212,7 +214,7 @@ names(submission_logit2)
 
 write.csv(
   submission_logit2,
-  "submission_logit_v2_mejorado.csv",
+  here("03_output/submissions","submission_logit_v2_mejorado.csv"),
   row.names = FALSE,
   quote = FALSE
 )

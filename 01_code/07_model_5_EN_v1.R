@@ -1,18 +1,18 @@
-# Prediccion 4 Modelo Elastic Net 
+# Prediccion 5 Elastic Net:
 
-#De acuerdo a nuestro segundo modelo, nuestra idea es realizar un modelo mas robusto, a medida que vamos 
+#De acuerdo a nuestro segundo modelo, nuestra idea es realizar un modelo más robusto, a medida que vamos 
 #entrenendo, sin embargo por otro lado nos encontramos en el dilema de la incertidumbre, la cual validaremos
 #si enverdad nuestro modelo fue mejor que el anterior
 
-#para esto  vamos a realizar un modelo Elastic Net, lo utilizaremos ya que tenemos muchas variables, con el fin de que nuestro modelo NO sea debil por cuentiones
-#de variables  que se correlacionen y generen ruido 
+#para esto  vamos a realizar un modelo Elastic Net, lo utilizaremos ya que tenemos muchas variables, 
+#con el fin de que nuestro modelo NO sea debil por cuentiones de variables  que se correlacionen y generen ruido 
 
-#traemos nuevamente nuestra varribel pobre
+#traemos nuevamente nuestra variable pobre
 
 train_num$Pobre <- factor(train_num$Pobre, levels = c("No", "Yes"))
 valid_num$Pobre <- factor(valid_num$Pobre, levels = c("No", "Yes"))
 
-#utilizaremos un for, ya que se necesitara calcular la mediana ya que aun hay variables que tienen N/A, se necesita robustes
+#utilizaremos un for, ya que se necesitara calcular la mediana ya que aun hay variables que tienen N/A, se necesita robustez
 #cuando hay variables que tengan sesgos y asi no perdemos tantas observaciones 
 for (col in names(train_num)) {
   if (col != "Pobre") {
@@ -93,7 +93,7 @@ resultados_enet[which.max(resultados_enet$f1), ]
 mejor_cutoff_enet <- resultados_enet$cutoff[which.max(resultados_enet$f1)]
 mejor_cutoff_enet
 
-#despues de limpiar nuestra prediccion convertimo a  enteros
+#después de limpiar nuestra prediccion convertimo a  enteros
 
 test_prob_enet <- predict(enet_fit, newdata = test_num, type = "prob")[, "Yes"]
 
@@ -116,4 +116,4 @@ unique(submission_enet$Pobre)
 names(submission_enet)
 
 #Guardamos
-write.csv(submission_enet, "submission_model2_v1.csv", row.names = FALSE, quote = FALSE)
+write.csv(submission_enet, here("03_output/submissions","submission_model2_v1.csv"), row.names = FALSE, quote = FALSE)

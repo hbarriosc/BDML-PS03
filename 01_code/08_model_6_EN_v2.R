@@ -1,17 +1,17 @@
-#Prediccion 6 Modelo Elastic Net 
+#Prediccion 6 Elastic Net:
 
-#Acontinuacion realizaremos un ejercicio de transformació/y/o depuracion, hay que tener encuenta que la transformacio puede jugar
-#a favor o encuentra. pero el ejercicio se basa con el fin de mejorar nuestro modelo anterior
+#A continuacion realizaremos un ejercicio de transformació/y/o depuración, hay que tener encuenta que la transformación puede jugar
+#a favor o en contra, pero el ejercicio se basa con el fin de mejorar nuestro modelo anterior
 #Validamos nuestras bases iniciales
 train_ref <- train
 test_ref  <- test
 
-#Validamos las variables exitentes#
+#Validamos las variables existentes
 
 var_ingreso_pc <- grep("^ingpcug$|^Ingpcug$|ingpc", names(train_ref), value = TRUE)
 var_ingreso_total <- grep("^ingtotug$|^Ingtotug$|ingtot", names(train_ref), value = TRUE)
 
-#Aca buscamos la variable de ingreso con el fin de realziar la trasformacion 
+#Acá buscamos la variable de ingreso con el fin de realizar la trasformación 
 
 if (length(var_ingreso_pc) > 0) {
   var_ingreso_pc <- var_ingreso_pc[1]
@@ -26,8 +26,8 @@ if (length(var_ingreso_total) > 0) {
 }
 
 
-#####Escogimos las siguientes variables, con el fin de validar número de cuartos por separado, ya que es una variable
-#que puede incurrir en relación con si el hogar es pobre 
+#####Escogimos las siguientes variables, con el fin de validar número de cuartos por separado, 
+#ya que es una variable que puede incurrir en relación con si el hogar es pobre 
 
 train_ref <- train_ref %>%
   mutate(
@@ -41,8 +41,8 @@ test_ref <- test_ref %>%
     cuartos_percapita = ifelse(Nper > 0, P5000 / Nper, NA)
   )
 
-####Realizamos logartimo a las variables, con el fin de eliminar ruido y que queden mucho mas limpias a la hora de realizar la prediccion
-##
+####Realizamos logartimo a las variables, con el fin de eliminar ruido y que queden mucho
+#más limpias a la hora de realizar la predicción
 
 if (!is.na(var_ingreso_pc)) {
   train_ref$ingreso_pc_log <- ifelse(train_ref[[var_ingreso_pc]] >= 0,
@@ -61,7 +61,7 @@ if (!is.na(var_ingreso_total)) {
 }
 
 
-##### eliminamos las varibles que no utilizaremos### 
+#eliminamos las varibles que no utilizaremos
 
 train_ref <- train_ref %>% select(-id, -Dominio, -Depto)
 test_ref  <- test_ref %>% select(-id, -Dominio, -Depto)
@@ -127,7 +127,8 @@ if (length(nzv_cols) > 0) {
   test_num_ref  <- test_num_ref %>% select(-all_of(cols_quitar))
 }
 
-#Aqui realizamos la mezcla entre ridge  y lasso , con el fin de buscar la mejor combinancion para nuestro modelo 
+#Aqui realizamos la mezcla entre ridge  y lasso,
+#con el fin de buscar la mejor combinanción para nuestro modelo 
 
 grid_enet <- expand.grid(
   alpha = seq(0, 1, by = 0.2),
@@ -207,5 +208,5 @@ sum(is.na(submission_enet_ref$Pobre))
 unique(submission_enet_ref$Pobre)
 names(submission_enet_ref)
 
-write.csv(submission_enet_ref, "submission_model2-1_v1.csv",
+write.csv(submission_enet_ref, here("03_output/submissions","submission_model2-1_v1.csv"),
           row.names = FALSE, quote = FALSE)

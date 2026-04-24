@@ -1,10 +1,10 @@
-#Modelo 2 Logit- 3 prediccion 
+###Predicción 3 Logit:
 
-
-#Acontinuación despues de limpiar nuestros datos vamos a seguir con nuestra semilla en donde se realizar un modelo
+#A continuación después de limpiar nuestros datos vamos a seguir con nuestra semilla en donde se realizar un modelo
 #logit con el fin de estimar la probabilidad de que el hogar sea pobre en donde utilizamos variables demograficas
 #socieconomicas -una variable dependiente dicotómica: pobre / no pobre.
-#El modelo logit se sustenta en la idea de que la probabilidad de pobreza de un hogar puede explicarse a partir de características observables del hogar y sus miembros,
+#El modelo logit se sustenta en la idea de que la probabilidad de pobreza de un hogar puede explicarse a 
+#partir de características observables del hogar y sus miembros,
 #como tamaño del hogar, educación, empleo y condiciones habitacionales.
 #Banco Mundial, Handbook on Poverty and Inequality. Enfoque aplicado para análisis de pobreza y bienestar.
 
@@ -12,7 +12,6 @@
 #Gary Becker, Human Capital. Fundamento clásico para variables de educación y productividad.
 
 #Semilla  
-
 
 set.seed(123)
 
@@ -134,4 +133,4 @@ unique(submission_logit$Pobre)
 names(submission_logit)
 
 #Guardardamos  CSV
-write.csv(submission_logit, "submission_logit_v2.csv", row.names = FALSE, quote = FALSE)
+write.csv(submission_logit, here("03_output/submissions","submission_logit_v2.csv"), row.names = FALSE, quote = FALSE)
