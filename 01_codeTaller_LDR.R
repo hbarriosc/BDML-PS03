@@ -14,6 +14,7 @@ library(e1071)
 library(pROC)
 
 
+
 #Cargamos los archivos csv que utilizaresmos, por otro lado ajustamos los delim, por motivo que se contraban en una sola columna
 #Se realiza el mismo proceso con las 4 bases
 train_hogares <- read_delim(
@@ -888,7 +889,11 @@ text(
 # 4. Ver AUC en consola
 auc(roc_logit2)
 
-#2 GRAFICA#
+#2 GRAFICA
+
+#Lo que realizaremos a contunuacion es un grafica que nos muestre algunas de las variables en 
+#donde el modelo no solo predice, también muestra que  educación, empleo y protección social son dimensiones
+#centrales de la pobreza
 
 # Importancia de variables del Logit mejorado
 coef_logit2 <- summary(logit_fit2)$coefficients
@@ -955,6 +960,57 @@ par(mar = c(5, 4, 4, 2))
 
 
 # Grafica 3
+
+#Para esta grafica La subcobertura representa hogares pobres que quedarían por fuera del programa;
+#la fuga representa hogares no pobres que recibirían beneficios.El mejor cutoff busca equilibrar ambos errores mediante F1 
+#los falsos negativos = hogares pobres clasificados como no pobres = subcobertura
+# falsos positivos = hogares no pobres clasificados como pobres = fuga.
+
+
+pred_valid_logit2 <- ifelse(logit_prob2 >= mejor_cutoff_logit2, "Yes", "No")
+pred_valid_logit2 <- factor(pred_valid_logit2, levels = c("No", "Yes"))
+
+real_valid_logit2 <- factor(valid_split2$Pobre, levels = c("No", "Yes"))
+
+cm_logit2 <- caret::confusionMatrix(
+  pred_valid_logit2,
+  real_valid_logit2,
+  positive = "Yes"
+)
+
+cm_logit2$table
+
+mat <- cm_logit2$table
+
+TN <- mat["No", "No"]
+FN <- mat["No", "Yes"]
+FP <- mat["Yes", "No"]
+TP <- mat["Yes", "Yes"]
+
+tasa_subcobertura <- FN / (FN + TP)
+tasa_fuga <- FP / (FP + TN)
+
+errores_politica <- c(
+  "Subcobertura\nFalsos negativos" = tasa_subcobertura,
+  "Fuga\nFalsos positivos" = tasa_fuga
+)
+
+barplot(
+  errores_politica,
+  ylim = c(0, max(errores_politica) + 0.1),
+  main = "Errores de política pública - Logit",
+  ylab = "Tasa de error",
+  col = "#2E86C1",
+  border = NA,
+  las = 1
+)
+
+text(
+  x = c(0.7, 1.9),
+  y = errores_politica + 0.03,
+  labels = paste0(round(errores_politica * 100, 1), "%")
+)
+
 
 
 # Prediccion 4 Modelo Elastic Net 
