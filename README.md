@@ -14,7 +14,7 @@ En este repositorio encontrará la solución del Problem set 2 correspondiente a
 
 Los datos no están incluidos en este repositorio por restricciones de tamaño. Es necesario:
 
-1. Descargar las bases de datos de kaggle(https://www.kaggle.com/competitions/uniandes-bdml-2026-10-ps-2/data)
+1. Descargar las bases de datos de kaggle (https://www.kaggle.com/competitions/uniandes-bdml-2026-10-ps-2/data)
 2. Guardar los siguientes archivos dentro de la carpeta `02_data/`:
 
 - train_personas.csv
@@ -24,7 +24,7 @@ Los datos no están incluidos en este repositorio por restricciones de tamaño. 
 
 ## Replicación
 
-Para reproducir todos los resultados, una vez descargados y ubicados los datos, primero correr:
+Para reproducir todos los resultados, una vez descargados y ubicados los datos, correr:
 
 `source("01_code/00_rundirectory.R")`
 
@@ -32,11 +32,23 @@ Para reproducir todos los resultados, una vez descargados y ubicados los datos, 
 
 -   `01_code/00_rundirectory.R`: Master script. Reproduce todos los códigos y resultados.
 -   `01_code/01_setup_packages.R`: Carga e instala los paquetes necesarios.
--   `01_code/02_load_and_preprare_data.R`: Importa los datos por webscrapping y realiza la limpieza necesaria a los datos.
--   `01_code/03_descriptive_statistics.R`: Crea tablas y gráficas de estadística descriptiva de la base.
--   `01_code/04_age_labor_income_profile.R`: Estima la relación edad-ingreso de los trabajadores bajo dos modelos:no condicional y condicional.
--   `01_code/05_gender_labor_income_gap.R`: Estima la relación edad-ingreso de los trabajadores a la luz de la brecha de género.
--   `01_code/06_labor_income_prediction.R`: Realiza la predicción de los ingresos bajo el mejor modelo de predicción.
+-   `01_code/02_load_and_preprare_data.R`: Llama, transforma y realiza la limpieza necesaria a los datos.
+-   `01_code/03_modelo_1_.R`: Estimación del modelo 
+-   `01_code/04_modelo_2_.R`: Estimación del modelo 
+-   `01_code/05_modelo_3_.R`: Estimación del modelo 
+-   `01_code/06_modelo_4_.R`: Estimación del modelo 
+-   `01_code/07_modelo_5_.R`: Estimación del modelo 
+-   `01_code/08_modelo_6_.R`: Estimación del modelo 
+-   `01_code/09_modelo_7_.R`: Estimación del modelo 
+-   `01_code/10_modelo_8_.R`: Estimación del modelo 
+-   `01_code/11_modelo_9_.R`: Estimación del modelo 
+-   `01_code/12_modelo_10_.R`: Estimación del modelo 
+-   `01_code/13_modelo_11_.R`: Estimación del modelo 
+-   `01_code/14_modelo_12_.R`: Estimación del modelo 
+-   `01_code/15_modelo_13_.R`: Estimación del modelo 
+-   `01_code/16_modelo_14_.R`: Estimación del modelo 
+-   `01_code/17_modelo_15_.R`: Estimación del modelo 
+-   `01_code/18_statistics_of_models.R`: Crea tablas y gráficas sobre los resultados y cálculos de los modelos.
 
 ## Salidas
 
