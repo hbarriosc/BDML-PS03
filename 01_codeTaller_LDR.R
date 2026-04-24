@@ -893,7 +893,7 @@ auc(roc_logit2)
 
 #Lo que realizaremos a contunuacion es un grafica que nos muestre algunas de las variables en 
 #donde el modelo no solo predice, también muestra que  educación, empleo y protección social son dimensiones
-#centrales de la pobreza
+#centrales de la pobreza.
 
 # Importancia de variables del Logit mejorado
 coef_logit2 <- summary(logit_fit2)$coefficients
@@ -957,7 +957,6 @@ barplot(
 )
 
 par(mar = c(5, 4, 4, 2))
-
 
 # Grafica 3
 
