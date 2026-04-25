@@ -1,4 +1,0 @@
-"modelo","variables","cutoff","f1_validacion","kaggle_score","comentario"
-"logit_base","Numericas sin id, Dominio y Depto",0.3,0.624342275511084,0.55,"Primer intento, modelo baseline"
-"elastic_net","Numericas + imputacion mediana",0.3,0.630090571447188,NA,"Elastic Net con imputacion de NA"
-"elastic_net","Numericas + imputacion mediana",0.3,0.630090571447188,0.63,"Elastic Net con imputacion de 0.63"
