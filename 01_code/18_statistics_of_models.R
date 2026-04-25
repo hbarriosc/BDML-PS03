@@ -8,7 +8,7 @@ roc_logit2 <- roc(
   direction = "<"
 )
 
-png(here("02_output","figures","roc_logit_mejorado.png"),
+png(here("03_output","figures","roc_logit_mejorado.png"),
     width = 900, height = 700)
 
 # 2. Graficar ROC
@@ -84,13 +84,13 @@ importancia_final <- importancia_final[order(importancia_final$importancia), ]
 
 write.csv(
   importancia_final,
-  here("02_output", "tables", "importancia_variables_logit.csv"),
+  here("03_output", "tables", "importancia_variables_logit.csv"),
   row.names = FALSE
 )
 
 # Gráfica
 png(
-  here("02_output", "figures", "factores_clave_pobreza.png"),
+  here("03_output", "figures", "factores_clave_pobreza.png"),
   width = 900,
   height = 700
 )
@@ -151,7 +151,7 @@ errores_politica <- c(
 )
 
 png(
-  here("02_output", "figures", "errores_politica_logit.png"),
+  here("03_output", "figures", "errores_politica_logit.png"),
   width = 900,
   height = 700
 )
@@ -173,3 +173,138 @@ text(
 )
 
 dev.off()
+
+##################
+
+# Redondear todo a 3 decimales
+resultados_logit2$precision <- round(resultados_logit2$precision, 3)
+resultados_logit2$recall    <- round(resultados_logit2$recall, 3)
+resultados_logit2$f1        <- round(resultados_logit2$f1, 3)
+
+# Identificar la fila del mejor cutoff
+mejor_fila <- which.max(resultados_logit2$f1)
+
+# Crear tabla con fila resaltada
+tabla_cutoff <- resultados_logit2 %>%
+  kbl(
+    col.names = c("Cutoff", "Precisión", "Recall", "F1"),
+    align     = "c",
+    caption   = "Búsqueda del cutoff óptimo — maximizando F1"
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width        = FALSE,
+    position          = "center"
+  ) %>%
+  row_spec(
+    mejor_fila,
+    bold       = TRUE,
+    color      = "white",
+    background = "#1D9E75"   # verde — la fila ganadora
+  )
+
+tabla_cutoff
+
+save_kable(
+  tabla_cutoff,
+  file = here("03_output", "tables", "tabla_cutoff_logit2.html")
+)
+
+#############################
+
+# formato largo para ggplot
+resultados_largo <- resultados_logit2 %>%
+  pivot_longer(
+    cols      = c(precision, recall, f1),
+    names_to  = "metrica",
+    values_to = "valor"
+  )
+
+# Etiqueta
+resultados_largo$metrica <- factor(
+  resultados_largo$metrica,
+  levels = c("f1", "recall", "precision"),
+  labels = c("F1", "Recall", "Precisión")
+)
+
+# identificacion el cutoff óptimo para marcarlo
+cutoff_opt  <- resultados_logit2$cutoff[which.max(resultados_logit2$f1)]
+f1_max      <- max(resultados_logit2$f1, na.rm = TRUE)
+
+#  graficar
+ggplot(resultados_largo, aes(x = cutoff, y = valor, color = metrica)) +
+  
+  # Líneas de las tres métricas
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2) +
+  
+  # Línea vertical del cutoff óptimo
+  geom_vline(
+    xintercept = cutoff_opt,
+    linetype   = "dashed",
+    color      = "#1D9E75",
+    linewidth  = 1
+  ) +
+  
+  # Punto destacado en el máximo F1
+  geom_point(
+    data = resultados_logit2[which.max(resultados_logit2$f1), ],
+    aes(x = cutoff, y = f1),
+    color = "#1D9E75",
+    size  = 5,
+    shape = 21,
+    fill  = "#1D9E75"
+  ) +
+  
+  # Etiqueta del cutoff óptimo
+  annotate(
+    "text",
+    x     = cutoff_opt + 0.03,
+    y     = f1_max - 0.05,
+    label = paste0("Cutoff óptimo\n", cutoff_opt),
+    color = "#1D9E75",
+    size  = 3.5,
+    hjust = 0
+  ) +
+  
+  # Colores manuales
+  scale_color_manual(
+    values = c(
+      "F1"        = "#1D9E75",   # verde
+      "Recall"    = "#378ADD",   # azul
+      "Precisión" = "#E24B4A"    # rojo
+    )
+  ) +
+  
+  # Escalas
+  scale_x_continuous(breaks = seq(0.10, 0.90, by = 0.10)) +
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2)) +
+  
+  # Etiquetas
+  labs(
+    title    = "Selección del cutoff óptimo — Logit mejorado",
+    subtitle = paste0("Cutoff seleccionado: ", cutoff_opt,
+                      "  |  F1 máximo en validación: ", round(f1_max, 3)),
+    x        = "Cutoff",
+    y        = "Valor de la métrica",
+    color    = "Métrica"
+  ) +
+  
+  # Tema limpio
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title    = element_text(face = "bold", size = 14),
+    plot.subtitle = element_text(color = "gray40", size = 11),
+    legend.position = "bottom",
+    panel.grid.minor = element_blank()
+  )
+
+#Guardar
+
+ggsave(
+  filename = here("03_output", "figures", "cutoff_optimo_logit2.png"),
+  width    = 10,
+  height   = 6,
+  dpi      = 300,
+  bg       = "white"
+)
