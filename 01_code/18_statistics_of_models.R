@@ -311,87 +311,67 @@ ggsave(
 
 ##################
 
-# Variables numéricas 
+# Variables
 vars_desc <- c(
   "P5000",
   "P5010",
   "Nper",
   "Npersug",
   "prom_P6040",
+  "prom_P6210s1",
   "prom_P6800",
-  "prom_Oc",
-  "n_personas",
-  "hacinamiento",
-  "cuartos_percapita"
+  "prom_P7495",
+  "prom_P7505",
+  "hacinamiento"
 )
 
-vars_desc <- intersect(vars_desc, names(train_split2))
+# Nombres
+nombres_b <- c(
+  "Número total de cuartos",
+  "Cuartos para dormir",
+  "Personas en el hogar",
+  "Personas en unidad de gasto",
+  "Edad promedio",
+  "Grado escolar aprobado",
+  "Horas trabajadas por semana",
+  "Ingresos por arriendos/pensión",
+  "Transferencias/dividendos",
+  "Hacinamiento"
+)
+
+# Base
+base_desc_num <- train_logit2 %>%
+  select(all_of(vars_desc))
 
 # Tabla descriptiva
-tabla_desc <- train_split2 %>%
-  select(all_of(vars_desc)) %>%
-  summarise(
-    across(
-      everything(),
-      list(
-        media   = ~mean(., na.rm = TRUE),
-        sd      = ~sd(., na.rm = TRUE),
-        min     = ~min(., na.rm = TRUE),
-        max     = ~max(., na.rm = TRUE),
-        missing = ~sum(is.na(.))
-      )
-    )
-  ) %>%
-  pivot_longer(
-    cols = everything(),
-    names_to = c("variable", ".value"),
-    names_sep = "_(?=[^_]+$)"
-  ) %>%
-  mutate(
-    media = round(media, 2),
-    sd    = round(sd, 2),
-    min   = round(min, 2),
-    max   = round(max, 2)
-  )
-
-# Nombres 
-nombres_variables <- c(
-  P5000 = "Número de cuartos",
-  P5010 = "Número de dormitorios",
-  Nper = "Personas en el hogar",
-  Npersug = "Personas subsidiables",
-  prom_P6040 = "Edad promedio del hogar",
-  prom_P6800 = "Ingreso promedio del hogar",
-  prom_Oc = "Ocupación promedio",
-  n_personas = "Tamaño del hogar",
-  hacinamiento = "Índice de hacinamiento",
-  cuartos_percapita = "Cuartos por persona"
+tabla_desc <- data.frame(
+  Variable = nombres_b,
+  Media = sapply(base_desc_num, function(x) mean(x, na.rm = TRUE)),
+  `Desv. Est.` = sapply(base_desc_num, function(x) sd(x, na.rm = TRUE)),
+  Mínimo = sapply(base_desc_num, function(x) min(x, na.rm = TRUE)),
+  Máximo = sapply(base_desc_num, function(x) max(x, na.rm = TRUE))
 )
 
-tabla_desc$variable <- nombres_variables[tabla_desc$variable]
+# Redondear
+tabla_desc[,2:5] <- round(tabla_desc[,2:5], 2)
 
-# tabla
-tabla_final <- tabla_desc %>%
+rownames(tabla_desc) <- NULL
+
+# Crear tabla
+tabla_html <- tabla_desc %>%
   kbl(
-    caption = "Estadísticas descriptivas de variables principales del mejor modelo",
-    col.names = c(
-      "Variable",
-      "Media",
-      "Desv. Est.",
-      "Mínimo",
-      "Máximo",
-      "Missing"
-    )
+    caption = "Estadísticas descriptivas de variables principales del modelo logit",
+    align = "c",
+    row.names = FALSE   # <- clave
   ) %>%
   kable_styling(
     bootstrap_options = c("striped", "hover", "condensed"),
-    full_width = FALSE
+    full_width = FALSE,
+    position = "center"
   )
 
-tabla_final
-
-#Guardamos imagen
+# Guardar imagen
 save_kable(
-  tabla_final,
+  tabla_html,
   file = here("03_output/tables", "tabla_descriptiva_logit.png")
 )
