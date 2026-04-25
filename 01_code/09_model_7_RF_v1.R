@@ -1,8 +1,5 @@
 #Prediccion 7 RANDOM FOREST:
 
-# Cargamos la librería para Random Forest
-install.packages("ranger")
-
 # Partimos de las bases limpias
 train_rf <- train
 test_rf  <- test
