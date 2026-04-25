@@ -310,19 +310,16 @@ ggsave(
 )
 
 ##################
-
 # Variables
 vars_desc <- c(
-  "P5000",
-  "P5010",
-  "Nper",
-  "Npersug",
-  "prom_P6040",
+  "P5000",          
+  "P5010",       
+  "Nper",       
+  "prom_P6040",   
   "prom_P6210s1",
-  "prom_P6800",
-  "prom_P7495",
-  "prom_P7505",
-  "hacinamiento"
+  "prom_P6800",    
+  "prom_P7495",   
+  "hacinamiento"    
 )
 
 # Nombres
@@ -330,12 +327,10 @@ nombres_b <- c(
   "Número total de cuartos",
   "Cuartos para dormir",
   "Personas en el hogar",
-  "Personas en unidad de gasto",
   "Edad promedio",
   "Grado escolar aprobado",
   "Horas trabajadas por semana",
   "Ingresos por arriendos/pensión",
-  "Transferencias/dividendos",
   "Hacinamiento"
 )
 
@@ -360,9 +355,9 @@ rownames(tabla_desc) <- NULL
 # Crear tabla
 tabla_html <- tabla_desc %>%
   kbl(
-    caption = "Estadísticas descriptivas de variables principales del modelo logit",
+    caption = "Estadísticas descriptivas de variables principales del mejor modelo",
     align = "c",
-    row.names = FALSE   # <- clave
+    row.names = FALSE
   ) %>%
   kable_styling(
     bootstrap_options = c("striped", "hover", "condensed"),
