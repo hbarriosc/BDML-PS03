@@ -308,3 +308,90 @@ ggsave(
   dpi      = 300,
   bg       = "white"
 )
+
+##################
+
+# Variables numéricas 
+vars_desc <- c(
+  "P5000",
+  "P5010",
+  "Nper",
+  "Npersug",
+  "prom_P6040",
+  "prom_P6800",
+  "prom_Oc",
+  "n_personas",
+  "hacinamiento",
+  "cuartos_percapita"
+)
+
+vars_desc <- intersect(vars_desc, names(train_split2))
+
+# Tabla descriptiva
+tabla_desc <- train_split2 %>%
+  select(all_of(vars_desc)) %>%
+  summarise(
+    across(
+      everything(),
+      list(
+        media   = ~mean(., na.rm = TRUE),
+        sd      = ~sd(., na.rm = TRUE),
+        min     = ~min(., na.rm = TRUE),
+        max     = ~max(., na.rm = TRUE),
+        missing = ~sum(is.na(.))
+      )
+    )
+  ) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = c("variable", ".value"),
+    names_sep = "_(?=[^_]+$)"
+  ) %>%
+  mutate(
+    media = round(media, 2),
+    sd    = round(sd, 2),
+    min   = round(min, 2),
+    max   = round(max, 2)
+  )
+
+# Nombres 
+nombres_variables <- c(
+  P5000 = "Número de cuartos",
+  P5010 = "Número de dormitorios",
+  Nper = "Personas en el hogar",
+  Npersug = "Personas subsidiables",
+  prom_P6040 = "Edad promedio del hogar",
+  prom_P6800 = "Ingreso promedio del hogar",
+  prom_Oc = "Ocupación promedio",
+  n_personas = "Tamaño del hogar",
+  hacinamiento = "Índice de hacinamiento",
+  cuartos_percapita = "Cuartos por persona"
+)
+
+tabla_desc$variable <- nombres_variables[tabla_desc$variable]
+
+# tabla
+tabla_final <- tabla_desc %>%
+  kbl(
+    caption = "Estadísticas descriptivas de variables principales del mejor modelo",
+    col.names = c(
+      "Variable",
+      "Media",
+      "Desv. Est.",
+      "Mínimo",
+      "Máximo",
+      "Missing"
+    )
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = FALSE
+  )
+
+tabla_final
+
+#Guardamos imagen
+save_kable(
+  tabla_final,
+  file = here("03_output/tables", "tabla_descriptiva_logit.png")
+)
